@@ -12,3 +12,11 @@ os: Windows Server 2012 R2
 # scripts that are called at very beginning, before repo cloning
 init:
   - git config --global core.autocrlf input
+
+clone_folder: c:\projects\dcmtk
+
+shallow_clone: true
+
+install:
+  - echo Cloning dcmtk...
+  cmd: git clone http://git.dcmtk.org/dcmtk.git --depth 1 c:\projects\dcmtk\source
