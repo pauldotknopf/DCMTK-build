@@ -20,3 +20,6 @@ shallow_clone: true
 install:
   - echo Cloning dcmtk...
   cmd: git clone http://git.dcmtk.org/dcmtk.git --depth 1 c:\projects\dcmtk\source
+
+before_build:
+  cmd: cmake c:\projects\dcmtk\source
