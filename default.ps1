@@ -23,7 +23,7 @@ task checkout {
 }
 
 task cmake -depends clean, checkout  {
-    exec { cmake -D DCMTK_WITH_ZLIB=ON -D WITH_ZLIBINC="$dcmtk_zlib_dir" "$dcmtk_source_dir" -B"$$dcmtk_build_dir"  } 
+    exec { cmake -D DCMTK_WITH_ZLIB=ON -D WITH_ZLIBINC="$dcmtk_zlib_dir" "$dcmtk_source_dir" -B"$dcmtk_build_dir"  } 
 }
 
 function global:delete_directory($directory_name) {
