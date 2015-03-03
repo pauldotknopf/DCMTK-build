@@ -14,16 +14,16 @@ properties {
 task default -depends cmake
 
 task clean {
-    delete_directory $dcmtk_source_dir
+    # delete_directory $dcmtk_source_dir
     delete_directory $dcmtk_build_dir
 }
 
 task checkout {
-    exec { git clone http://git.dcmtk.org/dcmtk.git $dcmtk_source_dir } 
+    # exec { git clone http://git.dcmtk.org/dcmtk.git $dcmtk_source_dir } 
 }
 
 task cmake -depends clean, checkout  {
-    exec { cd $dcmtk_build_dir cmake } 
+    exec { cmake -D DCMTK_WITH_ZLIB=ON -D WITH_ZLIBINC="$dcmtk_zlib_dir" "$dcmtk_source_dir" -B"$$dcmtk_build_dir"  } 
 }
 
 function global:delete_directory($directory_name) {
