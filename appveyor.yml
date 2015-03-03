@@ -25,4 +25,4 @@ before_build:
   - cmd: cmake c:\projects\dcmtk\source
 
 build:
-  project: c:\projects\dcmtk\source\DCMTK.sln
+  project: c:\projects\dcmtk\DCMTK.sln
