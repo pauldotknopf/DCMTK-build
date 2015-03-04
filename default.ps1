@@ -23,7 +23,7 @@ task checkout {
 }
 
 task cmake -depends clean, checkout  {
-    exec { cmake -D DCMTK_WITH_ZLIB=ON -D WITH_ZLIBINC="$dcmtk_zlib_dir" "$dcmtk_source_dir" -B"$dcmtk_build_dir"  } 
+    exec { cmake -D DCMTK_WITH_ZLIB=ON -D WITH_ZLIBINC="$dcmtk_zlib_dir" -D DCMTK_WITH_PNG=ON -D WITH_LIBPNGINC="$dcmtk_libpng_dir" -D DCMTK_WITH_XML=ON -D WITH_LIBXMLINC="$dcmtk_libxml_dir" -DCMTK_WITH_OPENSSL=ON -D WITH_OPENSSLINC="$dcmtk_openssl_dir" -D DCMTK_WITH_TIFF=ON -D WITH_LIBTIFFINC="$dcmtk_tiff_dir" -D DCMTK_OVERWRITE_WIN32_COMPILER_FLAGS=OFF "$dcmtk_source_dir" -B"$dcmtk_build_dir"  } 
 }
 
 function global:delete_directory($directory_name) {
