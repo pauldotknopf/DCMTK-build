@@ -2,7 +2,7 @@
 
 var target = Argument("target", "Default");
 var configuration = Argument("configuration", "Release");
-var dcmtkTag = Argument("dcmtkTag", "DCMTK-3.6.1_20150924");
+var dcmtkTag = Argument("dcmtkTag", "DCMTK-3.6.1_20170228");
 
 var baseDir = System.IO.Directory.GetCurrentDirectory();
 var dcmtkSourceDir = System.IO.Path.Combine(baseDir, "dcmtk-source");
@@ -17,6 +17,8 @@ var dcmtkTiffDir = System.IO.Path.Combine(dcmtkSupportLibrariesDir, "tiff-3.9.4"
 var dcmtkzLibDir = System.IO.Path.Combine(dcmtkSupportLibrariesDir, "zlib-1.2.5");
 var dcmtkBuildConfigurations = new List<string>{"DEBUG", "MINSIZEREL", "RELEASE", "RELWITHDEBINFO"};
 
+System.Console.WriteLine("Configuration=" + configuration);
+
 Task("EnsureDependencies")
     .Does(() =>
 {
@@ -27,8 +29,6 @@ Task("EnsureDependencies")
 Task("Clean")
     .Does(() => 
 {
-    if(System.IO.Directory.Exists(dcmtkSourceDir))
-        DeleteDirectory(dcmtkSourceDir, true);
     if(System.IO.Directory.Exists(dcmtkBuildDir))
         DeleteDirectory(dcmtkBuildDir, true);
     if(System.IO.Directory.Exists(dcmtkOutputDir))
