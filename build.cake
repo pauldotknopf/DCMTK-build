@@ -1,20 +1,22 @@
 #l "common.cake"
 
-var target = Argument("target", "Default");
+var target = Argument("target", "Install");
 var configuration = Argument("configuration", "Release");
-var dcmtkTag = Argument("dcmtkTag", "DCMTK-3.6.1_20170228");
+var dcmtkTag = Argument("dcmtkTag", "DCMTK-3.6.7");
 
 var baseDir = System.IO.Directory.GetCurrentDirectory();
 var dcmtkSourceDir = System.IO.Path.Combine(baseDir, "dcmtk-source");
 var dcmtkBuildDir = System.IO.Path.Combine(baseDir, "dcmtk-build");
 var dcmtkOutputDir = System.IO.Path.Combine(baseDir, "dcmtk-output");
 var dcmtkSupportLibrariesType = "MD";
-var dcmtkSupportLibrariesDir = System.IO.Path.Combine(baseDir, "support-libraries", "dcmtk-3.6.0-win32-i386-support_" + dcmtkSupportLibrariesType);
-var dcmtkLibPngDir = System.IO.Path.Combine(dcmtkSupportLibrariesDir, "libpng-1.4.3");
-var dcmtkLibXmlDir = System.IO.Path.Combine(dcmtkSupportLibrariesDir, "libxml2-2.7.7");
-var dcmtkOpenSslDir = System.IO.Path.Combine(dcmtkSupportLibrariesDir, "openssl-1.0.0c");
-var dcmtkTiffDir = System.IO.Path.Combine(dcmtkSupportLibrariesDir, "tiff-3.9.4");
-var dcmtkzLibDir = System.IO.Path.Combine(dcmtkSupportLibrariesDir, "zlib-1.2.5");
+var dcmtkSupportLibrariesDir = System.IO.Path.Combine(baseDir, "support-libraries", "dcmtk-3.6.7-win32-support-" + dcmtkSupportLibrariesType + "-iconv-msvc-15.9");
+var dcmtkLibPngDir = System.IO.Path.Combine(dcmtkSupportLibrariesDir, "libpng-1.6.37");
+var dcmtkLibXmlDir = System.IO.Path.Combine(dcmtkSupportLibrariesDir, "libxml2-iconv-2.9.13");
+var dcmtkOpenSslDir = System.IO.Path.Combine(dcmtkSupportLibrariesDir, "openssl-1.1.1n");
+var dcmtkTiffDir = System.IO.Path.Combine(dcmtkSupportLibrariesDir, "libtiff-4.3.0");
+var dcmtkzLibDir = System.IO.Path.Combine(dcmtkSupportLibrariesDir, "zlib-1.2.12");
+var dcmtkLibICONVDir = System.IO.Path.Combine(dcmtkSupportLibrariesDir, "libiconv-1.16");
+
 var dcmtkBuildConfigurations = new List<string>{"DEBUG", "MINSIZEREL", "RELEASE", "RELWITHDEBINFO"};
 
 System.Console.WriteLine("Configuration=" + configuration);
@@ -29,16 +31,14 @@ Task("EnsureDependencies")
 Task("Clean")
     .Does(() => 
 {
-    if(System.IO.Directory.Exists(dcmtkBuildDir))
-        DeleteDirectory(dcmtkBuildDir, true);
-    if(System.IO.Directory.Exists(dcmtkOutputDir))
-        DeleteDirectory(dcmtkOutputDir, true);
+    CleanDirectory(dcmtkBuildDir);
+    CleanDirectory(dcmtkOutputDir);
 });
 
 Task("Checkout")
     .Does(() =>
 {
-    ExecuteCommand("git clone http://git.dcmtk.org/dcmtk.git " + dcmtkSourceDir);
+    ExecuteCommand("git clone https://github.com/DCMTK/dcmtk.git " + dcmtkSourceDir);
     ExecuteCommand("git checkout " + dcmtkTag, dcmtkSourceDir);
 });
 
@@ -50,7 +50,7 @@ Task("Cmake")
     command.Append("cmake");
     command.Append(" -D CMAKE_INSTALL_PREFIX=\"" + dcmtkOutputDir + "\"");
     
-    command.Append(" -G \"Visual Studio 12 2013\"");
+    command.Append(" -G \"Visual Studio 15 2017\"");
     
     // add SAFESEH:NO for exe
     command.Append(" " + string.Join(" ", dcmtkBuildConfigurations.Select(x => string.Format("-D CMAKE_EXE_LINKER_FLAGS_{0}=\"/SAFESEH:NO\"", x))));
@@ -62,6 +62,9 @@ Task("Cmake")
     // enable zlib
     command.Append(" -D DCMTK_WITH_ZLIB=ON");
     command.Append(" -D WITH_ZLIBINC=\"" + dcmtkzLibDir + "\"");
+
+    command.Append(" -D DCMTK_WITH_ICONV=ON");
+    command.Append(" -D WITH_LIBICONVINC=\"" + dcmtkLibICONVDir + "\"");
 
     // enable png
     command.Append(" -D DCMTK_WITH_PNG=ON");
@@ -82,6 +85,10 @@ Task("Cmake")
     // don't overrite compiler flags
     command.Append(" -D DCMTK_OVERWRITE_WIN32_COMPILER_FLAGS=OFF");
     
+    // Build as a single shared library
+    command.Append(" -D BUILD_SHARED_LIBS=ON");
+    command.Append(" -D BUILD_SINGLE_SHARED_LIBRARY=ON");
+    
     // our source directory we are running cmake in
     command.Append(" \"" + dcmtkSourceDir + "\"");
     
@@ -97,6 +104,7 @@ Task("Build")
 {
     MSBuild("./dcmtk-build/DCMTK.sln", settings => {
         settings.SetConfiguration(configuration);
+        settings.UseToolVersion(MSBuildToolVersion.VS2017);
     });
 });
 
@@ -107,6 +115,7 @@ Task("Install")
         System.IO.Directory.CreateDirectory(dcmtkOutputDir);
     MSBuild("./dcmtk-build/INSTALL.vcxproj", settings => {
         settings.SetConfiguration(configuration);
+        settings.UseToolVersion(MSBuildToolVersion.VS2017);
     });
 });
 
